@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>等加速度運動 ICT教材（誤概念チェック＋学習記録）</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --accent:#60a5fa;
+      --good:#34d399;
+      --bad:#fb7185;
+      --warn:#fbbf24;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background: radial-gradient(1200px 600px at 10% 10%, #13224a 0%, var(--bg) 45%, #070b14 100%);
+      color:var(--text);
+    }
+    header{
+      padding:16px 16px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    header h1{ margin:0; font-size:18px; letter-spacing:.02em; }
+    header .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.45; }
+
+    .wrap{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap:12px;
+      padding:12px;
+      max-width:1280px;
+      margin:0 auto;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      .wrap{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+      overflow:hidden;
+      min-width:0;
+    }
+    .card h2{
+      margin:0;
+      padding:10px 12px;
+      font-size:14px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.15);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .content{ padding:12px; }
+
+    .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .pill{
+      font-size:12px;
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:999px;
+      background: rgba(0,0,0,.15);
+      color: var(--muted);
+      user-select:none;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      background: rgba(0,0,0,.18);
+      padding:8px 10px;
+      border-radius:10px;
+      font-size:12px;
+      transition:.15s;
+    }
+    .btn:hover{ border-color: rgba(255,255,255,.28); transform: translateY(-1px); }
+    .btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.35); }
+    .btn.good{ background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.35); }
+    .btn.bad{ background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.30); }
+    .btn.warn{ background: rgba(251,191,36,.10); border-color: rgba(251,191,36,.30); }
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none !important;
+    }
+
+    /* Left side */
+    canvas{
+      width:100%;
+      height:240px;
+      display:block;
+      background: rgba(0,0,0,.10);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+    }
+    .kv{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .kv .box{
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      min-width:0;
+    }
+    .kv .k{ font-size:12px; color:var(--muted); }
+    .kv .v{ margin-top:4px; font-size:16px; font-variant-numeric: tabular-nums; }
+
+    .hint, .note{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+    .note{
+      display:none;
+      border-style:dashed;
+      border-color: rgba(96,165,250,.45);
+      background: rgba(96,165,250,.08);
+      color:#dbeafe;
+    }
+    .note.show{ display:block; }
+
+    /* Right side: tabs to reduce height */
+    .tabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .tabbtn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .tabbtn.active{
+      border-color: rgba(96,165,250,.55);
+      background: rgba(96,165,250,.20);
+    }
+    .panel{ display:none; }
+    .panel.show{ display:block; }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 700px){ .grid2{ grid-template-columns: 1fr; } }
+    .control{
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:12px;
+      padding:10px;
+    }
+    .label{ font-size:12px; color:var(--muted); margin-bottom:6px; }
+    input[type="range"]{ width:100%; }
+    .val{ font-variant-numeric: tabular-nums; font-size:13px; margin-left:auto; color:#dbeafe; }
+
+    /* graphs panel - shorter canvases + side-by-side */
+    .graphGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 700px){ .graphGrid{ grid-template-columns: 1fr; } }
+    .graph canvas{ height:180px; }
+
+    /* quiz */
+    .quiz{
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+    }
+    .quiz h3{ margin:0 0 8px; font-size:13px; color:#dbeafe; }
+    .q{
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      margin-top:8px;
+    }
+    .q .qt{ font-size:12px; color:var(--muted); line-height:1.5; }
+    .q .ans{
+      margin-top:8px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .q input[type="number"], .q input[type="text"]{
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:12px;
+      font-variant-numeric: tabular-nums;
+      width:160px;
+    }
+    .msg{ font-size:12px; margin-top:8px; color:var(--muted); }
+    .msg.good{ color: var(--good); }
+    .msg.bad{ color: var(--bad); }
+    .msg.warn{ color: var(--warn); }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    th, td{
+      padding:8px 8px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      text-align:left;
+      font-variant-numeric: tabular-nums;
+    }
+    th{ color:#dbeafe; font-weight:600; }
+    .right{ text-align:right; }
+
+    footer{
+      max-width:1280px;
+      margin:0 auto;
+      padding:0 12px 16px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>等加速度運動（1次元）ICT教材 — 誤概念チェック＋学習記録（共有コードなし）</h1>
+  <div class="sub">
+    バグ修正：各設問は「新しい挑戦」ごとに<b>1回だけ記録</b>します（連打で記録が増えません）。<br/>
+    レイアウト改善：右側はタブ切替（操作 / グラフ / テスト / 記録）で縦長を抑えています。
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- LEFT: simulation -->
+  <section class="card">
+    <h2>
+      <span>シミュレーション（位置）</span>
+      <span class="row">
+        <span class="pill" id="sharePill">共有: URLに条件を反映</span>
+        <button class="btn" id="btnFullscreen">全画面</button>
+        <button class="btn primary" id="btnPlay">再生</button>
+        <button class="btn" id="btnPause">停止</button>
+        <button class="btn bad" id="btnReset">リセット</button>
+      </span>
+    </h2>
+    <div class="content">
+      <canvas id="sim"></canvas>
+
+      <div class="kv">
+        <div class="box"><div class="k">時刻 t [s]</div><div class="v" id="readT">0.00</div></div>
+        <div class="box"><div class="k">位置 x [m]</div><div class="v" id="readX">0.00</div></div>
+        <div class="box"><div class="k">速度 v [m/s]</div><div class="v" id="readV">0.00</div></div>
+        <div class="box"><div class="k">加速度 a [m/s²]</div><div class="v" id="readA">0.00</div></div>
+      </div>
+
+      <div class="hint">
+        観察ポイント：
+        <ul style="margin:6px 0 0 18px; padding:0;">
+          <li><b>aが一定</b>なら、vは「同じ時間ごとに同じだけ」変化します。</li>
+          <li><b>v–t</b>の傾きは「1秒でどれだけvが変わるか」＝加速度a。</li>
+          <li><b>v–t</b>の面積は「平均速度×時間」＝変位（台形でOK）。</li>
+        </ul>
+      </div>
+
+      <div class="note" id="noteExplain">
+        <b>式（微分積分なし）</b><br/>
+        v = v0 + a t<br/>
+        x = x0 + v0 t + (1/2) a t²<br/><br/>
+        変位（0〜t）は「台形の面積」：<br/>
+        変位 = ((v0 + v)/2) × t
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT: tabs -->
+  <section class="card">
+    <h2>
+      <span>学習パネル</span>
+      <span class="row">
+        <button class="btn good" id="btnExplain">解説ON/OFF</button>
+        <button class="btn warn" id="btnNewAttempt">新しい挑戦</button>
+        <button class="btn bad" id="btnClearMe">自分の履歴を消去</button>
+      </span>
+    </h2>
+
+    <div class="content">
+      <div class="tabs" role="tablist" aria-label="学習タブ">
+        <button class="tabbtn active" data-tab="op">操作</button>
+        <button class="tabbtn" data-tab="gr">グラフ</button>
+        <button class="tabbtn" data-tab="qs">テスト</button>
+        <button class="tabbtn" data-tab="st">記録</button>
+      </div>
+
+      <div style="height:10px;"></div>
+
+      <!-- 操作 -->
+      <div class="panel show" id="tab-op">
+        <div class="control" style="margin-bottom:10px;">
+          <div class="row" style="align-items:flex-end;">
+            <div style="flex:1; min-width:220px;">
+              <div class="label">学習者名（端末内ランキング表示に使用）</div>
+              <input id="studentName" type="text" placeholder="例：1A12 / 航平 など" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.18); color:var(--text); font-size:12px;" />
+            </div>
+          </div>
+          <div class="msg" id="attemptMsg"></div>
+        </div>
+
+        <div class="grid2">
+          <div class="control">
+            <div class="row"><div class="label">初期位置 x0 [m]</div><div class="val" id="valX0"></div></div>
+            <input id="x0" type="range" min="-5" max="5" step="0.1" value="0" />
+          </div>
+          <div class="control">
+            <div class="row"><div class="label">初速度 v0 [m/s]</div><div class="val" id="valV0"></div></div>
+            <input id="v0" type="range" min="-10" max="10" step="0.1" value="2" />
+          </div>
+          <div class="control">
+            <div class="row"><div class="label">加速度 a [m/s²]</div><div class="val" id="valA"></div></div>
+            <input id="a" type="range" min="-10" max="10" step="0.1" value="1" />
+          </div>
+          <div class="control">
+            <div class="row"><div class="label">表示時刻 t [s]（停止中に調整）</div><div class="val" id="valT"></div></div>
+            <input id="t" type="range" min="0" max="10" step="0.01" value="0" />
+          </div>
+        </div>
+      </div>
+
+      <!-- グラフ -->
+      <div class="panel" id="tab-gr">
+        <div class="graphGrid">
+          <div class="graph">
+            <div class="label">v–t（面積＝平均速度×時間＝変位）</div>
+            <canvas id="vt"></canvas>
+          </div>
+          <div class="graph">
+            <div class="label">x–t（a≠0で放物線）</div>
+            <canvas id="xt"></canvas>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:10px;">
+          グラフの見方：<b>傾き</b>と<b>面積</b>は「計算の道具」ではなく「意味の読み取り」です。ここでは台形（平均速度×時間）で十分です。
+        </div>
+      </div>
+
+      <!-- テスト -->
+      <div class="panel" id="tab-qs">
+        <div class="quiz">
+          <h3>誤概念チェック + 計算チェック（各設問は“1回の挑戦につき1回だけ記録”）</h3>
+
+          <div class="q" data-qkey="mq1">
+            <div class="qt">M1. 等加速度運動で「速度vが0になった」瞬間、加速度aも0になる？</div>
+            <div class="ans">
+              <button class="btn" data-choice="T">なる</button>
+              <button class="btn" data-choice="F">ならない</button>
+            </div>
+            <div class="msg" id="mq1msg"></div>
+          </div>
+
+          <div class="q" data-qkey="mq2">
+            <div class="qt">M2. v–t グラフの「面積（0〜t）」が表す量は？</div>
+            <div class="ans">
+              <button class="btn" data-choice="A">加速度</button>
+              <button class="btn" data-choice="B">変位（x−x0）</button>
+              <button class="btn" data-choice="C">速度の変化量</button>
+            </div>
+            <div class="msg" id="mq2msg"></div>
+          </div>
+
+          <div class="q" data-qkey="mq3">
+            <div class="qt">M3. 加速度aが負のとき、速度vはどうなる？</div>
+            <div class="ans">
+              <button class="btn" data-choice="A">必ず負になる</button>
+              <button class="btn" data-choice="B">時間とともに小さくなる（減少方向）</button>
+              <button class="btn" data-choice="C">一定のまま</button>
+            </div>
+            <div class="msg" id="mq3msg"></div>
+          </div>
+
+          <div class="q" data-qkey="q1">
+            <div class="qt">Q1. 現在の条件で、時刻 <b>t = 4.0 s</b> の速度 v は？（m/s）</div>
+            <div class="ans">
+              <input type="number" step="0.01" placeholder="例: 6.00" id="q1in">
+              <button class="btn primary" id="q1check">判定</button>
+            </div>
+            <div class="msg" id="q1msg"></div>
+          </div>
+
+          <div class="q" data-qkey="q2">
+            <div class="qt">Q2. 現在の条件で、時刻 <b>t = 4.0 s</b> の位置 x は？（m）</div>
+            <div class="ans">
+              <input type="number" step="0.01" placeholder="例: 14.00" id="q2in">
+              <button class="btn primary" id="q2check">判定</button>
+            </div>
+            <div class="msg" id="q2msg"></div>
+          </div>
+
+          <div class="q" data-qkey="q3">
+            <div class="qt">Q3. 0〜4s の変位を「台形（平均速度×時間）」で求めると？（m）</div>
+            <div class="ans">
+              <input type="number" step="0.01" placeholder="例: 16.00" id="q3in">
+              <button class="btn primary" id="q3check">判定</button>
+            </div>
+            <div class="msg" id="q3msg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 記録 -->
+      <div class="panel" id="tab-st">
+        <div class="quiz">
+          <h3>学習記録（端末内保存）・端末内ランキング</h3>
+
+          <div class="kv" style="margin-top:10px;">
+            <div class="box"><div class="k">回答数（挑戦ごと：各設問1回のみ）</div><div class="v" id="stAttempts">0</div></div>
+            <div class="box"><div class="k">正解数</div><div class="v" id="stCorrect">0</div></div>
+            <div class="box"><div class="k">正答率</div><div class="v" id="stAcc">0%</div></div>
+            <div class="box"><div class="k">平均クリア時間</div><div class="v" id="stAvg">—</div></div>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            「新しい挑戦」→ 最初の回答〜全問正解までの時間を計測します。<br/>
+            同じ設問を連打しても記録は増えません（バグ修正済み）。
+          </div>
+
+          <div class="q" style="margin-top:10px;">
+            <div class="qt">端末内ランキング（同じPC/タブレット内の記録のみ）</div>
+            <table>
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>名前</th>
+                  <th class="right">正答率</th>
+                  <th class="right">平均時間</th>
+                  <th class="right">正解/回答</th>
+                </tr>
+              </thead>
+              <tbody id="boardBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<footer>
+  仕様メモ：この版は「共有コード」なし（サーバなし・端末内のみ）で動作します。クラス全体のランキング共有は、別途サーバか集約方式が必要です。
+</footer>
+
+<script>
+(() => {
+  // ---------- Utils ----------
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const fmt = (n, d=2) => (Number.isFinite(n) ? n.toFixed(d) : "—");
+  const nowMs = () => performance.now();
+
+  // ---------- Storage Keys ----------
+  const KEY_ME = "accel_me_v2";
+  const KEY_BOARD = "accel_board_v2";
+
+  // ---------- State ----------
+  const st = {
+    x0: 0, v0: 2, a: 1, t: 0,
+    playing: false,
+    explain: false,
+    simT: 0,
+    lastTs: performance.now(),
+
+    // challenge timing
+    challengeActive: false,
+    challengeStartWall: null,
+    challengeFirstAnswer: null,
+    challengeEnded: false,
+
+    // per-challenge lock: each question recorded once
+    locked: {},   // qkey -> true
+    correctOnce: {} // qkey -> true
+  };
+
+  // ---------- Physics ----------
+  const vAt = (t) => st.v0 + st.a * t;
+  const xAt = (t) => st.x0 + st.v0 * t + 0.5 * st.a * t * t;
+  const dispTrap = (T) => ((st.v0 + vAt(T))/2) * T;
+
+  // ---------- URL query ----------
+  function loadFromQuery(){
+    const p = new URLSearchParams(location.search);
+    const qx0 = parseFloat(p.get("x0"));
+    const qv0 = parseFloat(p.get("v0"));
+    const qa  = parseFloat(p.get("a"));
+    const qt  = parseFloat(p.get("t"));
+    if(Number.isFinite(qx0)) st.x0 = clamp(qx0, -5, 5);
+    if(Number.isFinite(qv0)) st.v0 = clamp(qv0, -10, 10);
+    if(Number.isFinite(qa))  st.a  = clamp(qa, -10, 10);
+    if(Number.isFinite(qt))  st.t  = clamp(qt, 0, 10);
+    st.simT = st.t;
+  }
+  function writeQuery(){
+    const p = new URLSearchParams();
+    p.set("x0", st.x0.toFixed(2));
+    p.set("v0", st.v0.toFixed(2));
+    p.set("a",  st.a.toFixed(2));
+    p.set("t",  st.t.toFixed(2));
+    const url = location.origin + location.pathname + "?" + p.toString();
+    history.replaceState(null, "", url);
+    return url;
+  }
+
+  // ---------- Canvas helpers ----------
+  function setupCanvas(c){
+    const dpr = window.devicePixelRatio || 1;
+    const rect = c.getBoundingClientRect();
+    c.width = Math.floor(rect.width * dpr);
+    c.height = Math.floor(rect.height * dpr);
+    const ctx = c.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return ctx;
+  }
+  function drawAxes(ctx, w, h, pad, xLabel, yLabel){
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.25)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad, h - pad); ctx.lineTo(w - pad, h - pad);
+    ctx.moveTo(pad, h - pad); ctx.lineTo(pad, pad);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(229,231,235,.8)";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillText(xLabel, w - pad - 40, h - pad + 18);
+    ctx.fillText(yLabel, pad - 10, pad - 6);
+    ctx.restore();
+  }
+  function plotLine(ctx, w, h, pad, xs, ys, xMin, xMax, yMin, yMax){
+    const X = (x)=> pad + (x - xMin) / (xMax - xMin) * (w - 2*pad);
+    const Y = (y)=> (h - pad) - (y - yMin) / (yMax - yMin) * (h - 2*pad);
+    ctx.save();
+    ctx.strokeStyle = "rgba(96,165,250,.85)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for(let i=0;i<xs.length;i++){
+      const px = X(xs[i]), py = Y(ys[i]);
+      if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+    }
+    ctx.stroke();
+    ctx.restore();
+    return {X, Y};
+  }
+  function drawPoint(ctx, x, y){
+    ctx.save();
+    ctx.fillStyle = "rgba(52,211,153,.95)";
+    ctx.beginPath();
+    ctx.arc(x, y, 4.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ---------- Draw simulation ----------
+  function drawSim(){
+    const c = $("sim");
+    const ctx = setupCanvas(c);
+    const w = c.getBoundingClientRect().width;
+    const h = c.getBoundingClientRect().height;
+    ctx.clearRect(0,0,w,h);
+
+    const xMin = -20, xMax = 20;
+    const pad = 24;
+    const trackY = h * 0.55;
+    const X = (x)=> pad + (x - xMin) / (xMax - xMin) * (w - 2*pad);
+
+    // grid
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.06)";
+    ctx.lineWidth = 1;
+    for(let i=0;i<=10;i++){
+      const gx = pad + i*(w-2*pad)/10;
+      ctx.beginPath();
+      ctx.moveTo(gx, pad);
+      ctx.lineTo(gx, h-pad);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // track
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.25)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pad, trackY);
+    ctx.lineTo(w - pad, trackY);
+    ctx.stroke();
+    ctx.restore();
+
+    // label
+    ctx.save();
+    ctx.fillStyle = "rgba(229,231,235,.7)";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillText("x [m]", w - pad - 40, trackY + 28);
+    ctx.restore();
+
+    // object
+    const t = st.simT;
+    const x = xAt(t);
+    const px = X(x);
+
+    ctx.save();
+    ctx.fillStyle = "rgba(96,165,250,.9)";
+    ctx.strokeStyle = "rgba(255,255,255,.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(px - 18, trackY - 18, 36, 36, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    // velocity arrow
+    const v = vAt(t);
+    const arrowLen = clamp(Math.abs(v)*10, 0, 120);
+    const dir = v >= 0 ? 1 : -1;
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(52,211,153,.9)";
+    ctx.fillStyle = "rgba(52,211,153,.9)";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px, trackY - 34);
+    ctx.lineTo(px + dir*arrowLen, trackY - 34);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(px + dir*arrowLen, trackY - 34);
+    ctx.lineTo(px + dir*(arrowLen - 10), trackY - 40);
+    ctx.lineTo(px + dir*(arrowLen - 10), trackY - 28);
+    ctx.closePath();
+    ctx.fill();
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillText("v", px + dir*(arrowLen + 8), trackY - 30);
+    ctx.restore();
+
+    // acceleration text
+    ctx.save();
+    ctx.fillStyle = "rgba(251,191,36,.85)";
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillText("a = " + fmt(st.a,2) + " m/s²（一定）", pad, pad+12);
+    ctx.restore();
+  }
+
+  // ---------- Draw graphs ----------
+  function drawGraphs(){
+    const tMax = 10;
+    const n = 220;
+    const xs = [], vs = [], xps = [];
+    for(let i=0;i<=n;i++){
+      const t = tMax * i / n;
+      xs.push(t);
+      vs.push(vAt(t));
+      xps.push(xAt(t));
+    }
+
+    // v-t
+    {
+      const c = $("vt");
+      const ctx = setupCanvas(c);
+      const w = c.getBoundingClientRect().width;
+      const h = c.getBoundingClientRect().height;
+      ctx.clearRect(0,0,w,h);
+
+      const pad = 32;
+      const vMin = Math.min(...vs, -12);
+      const vMax = Math.max(...vs, 12);
+      drawAxes(ctx, w, h, pad, "t", "v");
+      const {X, Y} = plotLine(ctx, w, h, pad, xs, vs, 0, tMax, vMin, vMax);
+
+      const t = st.t;
+      const v = vAt(t);
+      drawPoint(ctx, X(t), Y(v));
+
+      // trapezoid fill 0..t using v0 and v(t)
+      const v0 = st.v0;
+      ctx.save();
+      ctx.fillStyle = "rgba(96,165,250,.12)";
+      ctx.beginPath();
+      ctx.moveTo(X(0), Y(0));
+      ctx.lineTo(X(0), Y(v0));
+      ctx.lineTo(X(t), Y(v));
+      ctx.lineTo(X(t), Y(0));
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // x-t
+    {
+      const c = $("xt");
+      const ctx = setupCanvas(c);
+      const w = c.getBoundingClientRect().width;
+      const h = c.getBoundingClientRect().height;
+      ctx.clearRect(0,0,w,h);
+
+      const pad = 32;
+      const xMin = Math.min(...xps, -25);
+      const xMax = Math.max(...xps, 25);
+      drawAxes(ctx, w, h, pad, "t", "x");
+      const {X, Y} = plotLine(ctx, w, h, pad, xs, xps, 0, tMax, xMin, xMax);
+
+      const t = st.t;
+      const x = xAt(t);
+      drawPoint(ctx, X(t), Y(x));
+    }
+  }
+
+  // ---------- Learning record ----------
+  function safeJsonParse(s){ try{ return JSON.parse(s); }catch{ return null; } }
+  function defaultMe(){
+    return { name:"", attempts:0, correct:0, totalTimeMs:0, completedChallenges:0, lastUpdated:Date.now() };
+  }
+  function loadMe(){
+    const raw = localStorage.getItem(KEY_ME);
+    const obj = raw ? safeJsonParse(raw) : null;
+    return obj && typeof obj === "object" ? {...defaultMe(), ...obj} : defaultMe();
+  }
+  function saveMe(me){
+    me.lastUpdated = Date.now();
+    localStorage.setItem(KEY_ME, JSON.stringify(me));
+  }
+  function loadBoard(){
+    const raw = localStorage.getItem(KEY_BOARD);
+    const arr = raw ? safeJsonParse(raw) : null;
+    return Array.isArray(arr) ? arr : [];
+  }
+  function saveBoard(arr){ localStorage.setItem(KEY_BOARD, JSON.stringify(arr)); }
+
+  let me = loadMe();
+  $("studentName").value = me.name || "";
+
+  function accRate(m){ return m.attempts ? (m.correct / m.attempts) : 0; }
+  function avgSec(m){ return m.completedChallenges ? (m.totalTimeMs / m.completedChallenges / 1000) : null; }
+
+  function renderStats(){
+    $("stAttempts").textContent = String(me.attempts);
+    $("stCorrect").textContent = String(me.correct);
+    $("stAcc").textContent = (accRate(me)*100).toFixed(1) + "%";
+    const a = avgSec(me);
+    $("stAvg").textContent = a === null ? "—" : a.toFixed(1) + " s";
+  }
+
+  function upsertBoardFromMe(){
+    const name = (me.name || "").trim();
+    if(!name) return;
+    const entry = {
+      name,
+      attempts: me.attempts,
+      correct: me.correct,
+      acc: accRate(me),
+      avgSec: avgSec(me),
+      lastUpdated: me.lastUpdated
+    };
+    const board = loadBoard();
+    const idx = board.findIndex(x => x && x.name === entry.name);
+    if(idx >= 0){
+      // keep better: higher acc, then lower avg
+      const a1 = entry.acc, a0 = board[idx].acc ?? 0;
+      const t1 = entry.avgSec ?? Infinity, t0 = board[idx].avgSec ?? Infinity;
+      const better = (a1 > a0) || (a1 === a0 && t1 < t0);
+      board[idx] = better ? entry : {...board[idx], lastUpdated: Date.now()};
+    }else{
+      board.push(entry);
+    }
+    saveBoard(board);
+  }
+
+  function renderBoard(){
+    const body = $("boardBody");
+    const board = loadBoard()
+      .filter(x => x && typeof x.name === "string" && x.name.trim().length > 0);
+
+    board.sort((p,q) => {
+      if((q.acc ?? 0) !== (p.acc ?? 0)) return (q.acc ?? 0) - (p.acc ?? 0);
+      const pt = p.avgSec ?? Infinity;
+      const qt = q.avgSec ?? Infinity;
+      if(pt !== qt) return pt - qt;
+      return (q.lastUpdated ?? 0) - (p.lastUpdated ?? 0);
+    });
+
+    body.innerHTML = "";
+    if(board.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="5" style="color: rgba(148,163,184,.9);">まだランキングはありません。</td>`;
+      body.appendChild(tr);
+      return;
+    }
+    board.slice(0, 20).forEach((r, i) => {
+      const tr = document.createElement("tr");
+      const acc = ((r.acc ?? 0)*100).toFixed(1) + "%";
+      const avg = (r.avgSec == null) ? "—" : r.avgSec.toFixed(1) + " s";
+      const ca = `${r.correct ?? 0}/${r.attempts ?? 0}`;
+      tr.innerHTML = `
+        <td>${i+1}</td>
+        <td>${escapeHtml(r.name)}</td>
+        <td class="right">${acc}</td>
+        <td class="right">${avg}</td>
+        <td class="right">${ca}</td>
+      `;
+      body.appendChild(tr);
+    });
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  // ---------- Challenge control ----------
+  function resetChallengeLocks(){
+    st.locked = {};
+    st.correctOnce = {};
+    // enable all quiz buttons
+    document.querySelectorAll(".q[data-qkey] button").forEach(b => b.disabled = false);
+    ["q1check","q2check","q3check"].forEach(id => { $(id).disabled = false; });
+    // clear messages
+    ["mq1msg","mq2msg","mq3msg","q1msg","q2msg","q3msg"].forEach(id => { $(id).textContent=""; $(id).className="msg"; });
+    // keep inputs as-is (optional). If you want to clear, uncomment:
+    // ["q1in","q2in","q3in"].forEach(id => { $(id).value=""; });
+  }
+
+  function startChallenge(){
+    st.challengeActive = true;
+    st.challengeStartWall = nowMs();
+    st.challengeFirstAnswer = null;
+    st.challengeEnded = false;
+    resetChallengeLocks();
+    $("attemptMsg").textContent = "新しい挑戦を開始しました。各設問は1回だけ記録されます。";
+    $("attemptMsg").className = "msg warn";
+  }
+
+  function markAnswered(){
+    if(!st.challengeActive) return;
+    if(st.challengeFirstAnswer === null){
+      st.challengeFirstAnswer = nowMs();
+    }
+  }
+
+  function maybeEndChallengeIfAllCorrect(){
+    if(!st.challengeActive || st.challengeEnded) return;
+    const keys = ["mq1","mq2","mq3","q1","q2","q3"];
+    const ok = keys.every(k => st.correctOnce[k] === true);
+    if(!ok) return;
+
+    const end = nowMs();
+    const start = (st.challengeFirstAnswer ?? st.challengeStartWall ?? end);
+    const dur = Math.max(0, end - start);
+
+    me.totalTimeMs += dur;
+    me.completedChallenges += 1;
+    saveMe(me);
+    upsertBoardFromMe();
+
+    st.challengeEnded = true;
+    st.challengeActive = false;
+
+    $("attemptMsg").textContent = `挑戦クリア：所要時間 ${(dur/1000).toFixed(1)} s を記録しました。`;
+    $("attemptMsg").className = "msg good";
+    renderStats();
+    renderBoard();
+  }
+
+  // ---------- FIX: record once per question per challenge ----------
+  function recordOnce(qkey, isCorrect){
+    // If already recorded for this question in this challenge, do nothing
+    if(st.locked[qkey]) return false;
+
+    st.locked[qkey] = true;
+    me.attempts += 1;
+    if(isCorrect) me.correct += 1;
+    saveMe(me);
+    upsertBoardFromMe();
+    renderStats();
+    renderBoard();
+    return true;
+  }
+
+  function lockQuestionUI(qkey){
+    const q = document.querySelector(`.q[data-qkey="${qkey}"]`);
+    if(!q) return;
+    q.querySelectorAll("button").forEach(b => b.disabled = true);
+    // numeric: disable check button handled separately
+  }
+
+  // ---------- Answer helpers ----------
+  function setMsg(id, ok, text){
+    const el = $(id);
+    el.textContent = text;
+    el.className = "msg " + (ok ? "good" : "bad");
+  }
+
+  function approx(input, correct, tol){
+    if(input === null) return { ok:false, msg:"数値を入力してください。" };
+    const diff = Math.abs(input - correct);
+    if(diff <= tol) return { ok:true, msg:`正解（許容誤差 ±${tol}）。` };
+    const hint = (diff > 3*tol) ? "符号と式の代入（v=v0+at / x=x0+v0t+(1/2)at²）を確認。" : "惜しい。計算手順か四捨五入を確認。";
+    return { ok:false, msg:`不正解。ヒント：${hint}` };
+  }
+
+  // ---------- Bind misconception questions (choice) ----------
+  function bindChoiceQuestions(){
+    // mq1 correct = F
+    const mq1 = document.querySelector(`.q[data-qkey="mq1"]`);
+    mq1.querySelectorAll("button[data-choice]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        markAnswered();
+        const ans = btn.getAttribute("data-choice");
+        const ok = (ans === "F");
+        // record once and lock
+        const recorded = recordOnce("mq1", ok);
+        lockQuestionUI("mq1");
+        if(ok){
+          st.correctOnce["mq1"] = true;
+          setMsg("mq1msg", true, "正解。v=0は「瞬間の状態」。aは「変化の向き」で、別物です（投げ上げ頂点でもaは下向き）。");
+        }else{
+          setMsg("mq1msg", false, "不正解。速度が0でも、加速度が0とは限りません。vとaは別の量です。");
+        }
+        // even if not recorded (shouldn't happen because locked), keep end check
+        maybeEndChallengeIfAllCorrect();
+      }, { once:false });
+    });
+
+    // mq2 correct = B
+    const mq2 = document.querySelector(`.q[data-qkey="mq2"]`);
+    mq2.querySelectorAll("button[data-choice]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        markAnswered();
+        const ans = btn.getAttribute("data-choice");
+        const ok = (ans === "B");
+        recordOnce("mq2", ok);
+        lockQuestionUI("mq2");
+        if(ok){
+          st.correctOnce["mq2"] = true;
+          setMsg("mq2msg", true, "正解。面積は「平均速度×時間」の意味で、変位（x−x0）です。");
+        }else{
+          setMsg("mq2msg", false, "不正解。傾きが加速度、面積が変位です（面積＝平均速度×時間）。");
+        }
+        maybeEndChallengeIfAllCorrect();
+      });
+    });
+
+    // mq3 correct = B
+    const mq3 = document.querySelector(`.q[data-qkey="mq3"]`);
+    mq3.querySelectorAll("button[data-choice]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        markAnswered();
+        const ans = btn.getAttribute("data-choice");
+        const ok = (ans === "B");
+        recordOnce("mq3", ok);
+        lockQuestionUI("mq3");
+        if(ok){
+          st.correctOnce["mq3"] = true;
+          setMsg("mq3msg", true, "正解。aが負なら、vは時間とともに小さくなる方向に変化します（vが負になるかはv0次第）。");
+        }else{
+          setMsg("mq3msg", false, "不正解。加速度の符号は「変化の向き」。速度の符号そのものとは別です。");
+        }
+        maybeEndChallengeIfAllCorrect();
+      });
+    });
+  }
+
+  // ---------- Bind numeric questions (check once per challenge) ----------
+  function bindNumeric(){
+    $("q1check").addEventListener("click", () => {
+      markAnswered();
+      if(st.locked["q1"]) return; // already recorded
+      const t = 4.0;
+      const correct = st.v0 + st.a*t;
+      const input = Number.isFinite(Number($("q1in").value)) ? Number($("q1in").value) : null;
+      const r = approx(input, correct, 0.2);
+      recordOnce("q1", r.ok);
+      $("q1check").disabled = true;
+      if(r.ok) st.correctOnce["q1"] = true;
+      setMsg("q1msg", r.ok, `正解値: ${fmt(correct,2)} m/s。${r.msg}`);
+      maybeEndChallengeIfAllCorrect();
+    });
+
+    $("q2check").addEventListener("click", () => {
+      markAnswered();
+      if(st.locked["q2"]) return;
+      const t = 4.0;
+      const correct = st.x0 + st.v0*t + 0.5*st.a*t*t;
+      const input = Number.isFinite(Number($("q2in").value)) ? Number($("q2in").value) : null;
+      const r = approx(input, correct, 0.3);
+      recordOnce("q2", r.ok);
+      $("q2check").disabled = true;
+      if(r.ok) st.correctOnce["q2"] = true;
+      setMsg("q2msg", r.ok, `正解値: ${fmt(correct,2)} m。${r.msg}`);
+      maybeEndChallengeIfAllCorrect();
+    });
+
+    $("q3check").addEventListener("click", () => {
+      markAnswered();
+      if(st.locked["q3"]) return;
+      const t = 4.0;
+      const correct = dispTrap(t);
+      const input = Number.isFinite(Number($("q3in").value)) ? Number($("q3in").value) : null;
+      const r = approx(input, correct, 0.3);
+      recordOnce("q3", r.ok);
+      $("q3check").disabled = true;
+      if(r.ok) st.correctOnce["q3"] = true;
+      setMsg("q3msg", r.ok, `正解値: ${fmt(correct,2)} m（平均速度×時間）。${r.msg}`);
+      maybeEndChallengeIfAllCorrect();
+    });
+  }
+
+  // ---------- Tabs ----------
+  function bindTabs(){
+    const btns = document.querySelectorAll(".tabbtn");
+    const panels = {
+      op: $("tab-op"),
+      gr: $("tab-gr"),
+      qs: $("tab-qs"),
+      st: $("tab-st")
+    };
+    btns.forEach(b => {
+      b.addEventListener("click", () => {
+        btns.forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        const key = b.getAttribute("data-tab");
+        Object.values(panels).forEach(p => p.classList.remove("show"));
+        panels[key].classList.add("show");
+
+        // redraw graphs if opening graph panel (canvas needs correct size)
+        if(key === "gr"){
+          drawGraphs();
+        }
+      });
+    });
+  }
+
+  // ---------- UI sync ----------
+  function syncUI(){
+    $("x0").value = st.x0;
+    $("v0").value = st.v0;
+    $("a").value  = st.a;
+    $("t").value  = st.t;
+
+    $("valX0").textContent = fmt(st.x0,2);
+    $("valV0").textContent = fmt(st.v0,2);
+    $("valA").textContent  = fmt(st.a,2);
+    $("valT").textContent  = fmt(st.t,2);
+
+    $("readT").textContent = fmt(st.simT,2);
+    $("readX").textContent = fmt(xAt(st.simT),2);
+    $("readV").textContent = fmt(vAt(st.simT),2);
+    $("readA").textContent = fmt(st.a,2);
+
+    const url = writeQuery();
+    $("sharePill").textContent = "共有: " + url;
+
+    $("noteExplain").classList.toggle("show", st.explain);
+
+    drawSim();
+    // graphs are drawn on init + when switching to graph tab; but drawing here is ok too
+    drawGraphs();
+
+    renderStats();
+    renderBoard();
+  }
+
+  function onParamChange(){
+    if(!st.playing) st.simT = st.t;
+    syncUI();
+  }
+
+  // ---------- Player ----------
+  function tick(){
+    const now = performance.now();
+    const dt = (now - st.lastTs) / 1000;
+    st.lastTs = now;
+
+    if(st.playing){
+      st.simT = clamp(st.simT + dt, 0, 10);
+      st.t = st.simT;
+      if(st.simT >= 10) st.playing = false;
+      syncUI();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // ---------- Bind controls ----------
+  function bindControls(){
+    ["x0","v0","a","t"].forEach(id => {
+      $(id).addEventListener("input", (e) => {
+        st[id] = parseFloat(e.target.value);
+        onParamChange();
+      });
+    });
+
+    $("btnExplain").addEventListener("click", () => {
+      st.explain = !st.explain;
+      syncUI();
+    });
+
+    $("btnPlay").addEventListener("click", () => {
+      st.playing = true;
+      st.lastTs = performance.now();
+    });
+
+    $("btnPause").addEventListener("click", () => {
+      st.playing = false;
+      st.t = st.simT;
+      syncUI();
+    });
+
+    $("btnReset").addEventListener("click", () => {
+      st.playing = false;
+      st.simT = 0;
+      st.t = 0;
+      st.challengeActive = false;
+      st.challengeEnded = false;
+      st.challengeStartWall = null;
+      st.challengeFirstAnswer = null;
+      resetChallengeLocks();
+      $("attemptMsg").textContent = "";
+      $("attemptMsg").className = "msg";
+      syncUI();
+    });
+
+    $("btnFullscreen").addEventListener("click", async () => {
+      try{
+        if(!document.fullscreenElement) await document.documentElement.requestFullscreen();
+        else await document.exitFullscreen();
+      }catch{
+        alert("全画面にできませんでした。ブラウザ設定をご確認ください。");
+      }
+    });
+
+    $("studentName").addEventListener("change", () => {
+      me.name = ($("studentName").value || "").trim();
+      saveMe(me);
+      upsertBoardFromMe();
+      renderBoard();
+    });
+
+    $("btnNewAttempt").addEventListener("click", startChallenge);
+
+    $("btnClearMe").addEventListener("click", () => {
+      localStorage.removeItem(KEY_ME);
+      me = loadMe();
+      $("studentName").value = me.name || "";
+      renderStats();
+      $("attemptMsg").textContent = "この端末の「自分の履歴」を消去しました。";
+      $("attemptMsg").className = "msg warn";
+      upsertBoardFromMe();
+      renderBoard();
+    });
+
+    window.addEventListener("resize", () => {
+      // redraw canvases
+      drawSim();
+      drawGraphs();
+    });
+  }
+
+  // ---------- init ----------
+  loadFromQuery();
+  st.simT = st.t;
+
+  bindTabs();
+  bindControls();
+  bindChoiceQuestions();
+  bindNumeric();
+
+  // start first challenge automatically (optional). If you don't want, comment out:
+  startChallenge();
+
+  syncUI();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
