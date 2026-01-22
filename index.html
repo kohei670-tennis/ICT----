@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>等加速度運動 ICT教材（誤概念チェック＋学習記録）</title>
+  <title>等加速度運動 ICT教材（ストロボ＋表示範囲）</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -21,10 +21,7 @@
       background: radial-gradient(1200px 600px at 10% 10%, #13224a 0%, var(--bg) 45%, #070b14 100%);
       color:var(--text);
     }
-    header{
-      padding:16px 16px 10px;
-      border-bottom:1px solid rgba(255,255,255,.06);
-    }
+    header{ padding:16px 16px 10px; border-bottom:1px solid rgba(255,255,255,.06); }
     header h1{ margin:0; font-size:18px; letter-spacing:.02em; }
     header .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.45; }
 
@@ -37,9 +34,7 @@
       margin:0 auto;
       align-items:start;
     }
-    @media (max-width: 980px){
-      .wrap{ grid-template-columns: 1fr; }
-    }
+    @media (max-width: 980px){ .wrap{ grid-template-columns: 1fr; } }
 
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
@@ -62,8 +57,8 @@
       flex-wrap:wrap;
     }
     .content{ padding:12px; }
-
     .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
     .pill{
       font-size:12px;
       padding:6px 10px;
@@ -92,13 +87,8 @@
     .btn.good{ background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.35); }
     .btn.bad{ background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.30); }
     .btn.warn{ background: rgba(251,191,36,.10); border-color: rgba(251,191,36,.30); }
-    .btn:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-      transform:none !important;
-    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none !important; }
 
-    /* Left side */
     canvas{
       width:100%;
       height:240px;
@@ -107,6 +97,7 @@
       border:1px solid rgba(255,255,255,.08);
       border-radius:14px;
     }
+
     .kv{
       display:grid;
       grid-template-columns: 1fr 1fr;
@@ -142,12 +133,7 @@
     }
     .note.show{ display:block; }
 
-    /* Right side: tabs to reduce height */
-    .tabs{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
     .tabbtn{
       border:1px solid rgba(255,255,255,.14);
       background: rgba(0,0,0,.18);
@@ -157,18 +143,11 @@
       font-size:12px;
       cursor:pointer;
     }
-    .tabbtn.active{
-      border-color: rgba(96,165,250,.55);
-      background: rgba(96,165,250,.20);
-    }
+    .tabbtn.active{ border-color: rgba(96,165,250,.55); background: rgba(96,165,250,.20); }
     .panel{ display:none; }
     .panel.show{ display:block; }
 
-    .grid2{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
+    .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     @media (max-width: 700px){ .grid2{ grid-template-columns: 1fr; } }
     .control{
       background: rgba(0,0,0,.18);
@@ -180,16 +159,10 @@
     input[type="range"]{ width:100%; }
     .val{ font-variant-numeric: tabular-nums; font-size:13px; margin-left:auto; color:#dbeafe; }
 
-    /* graphs panel - shorter canvases + side-by-side */
-    .graphGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
+    .graphGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
     @media (max-width: 700px){ .graphGrid{ grid-template-columns: 1fr; } }
     .graph canvas{ height:180px; }
 
-    /* quiz */
     .quiz{
       padding:10px 12px;
       border-radius:12px;
@@ -205,13 +178,7 @@
       margin-top:8px;
     }
     .q .qt{ font-size:12px; color:var(--muted); line-height:1.5; }
-    .q .ans{
-      margin-top:8px;
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
+    .q .ans{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
     .q input[type="number"], .q input[type="text"]{
       padding:8px 10px;
       border-radius:10px;
@@ -227,11 +194,7 @@
     .msg.bad{ color: var(--bad); }
     .msg.warn{ color: var(--warn); }
 
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:12px;
-    }
+    table{ width:100%; border-collapse:collapse; font-size:12px; }
     th, td{
       padding:8px 8px;
       border-bottom:1px solid rgba(255,255,255,.10);
@@ -254,15 +217,15 @@
 
 <body>
 <header>
-  <h1>等加速度運動（1次元）ICT教材 — 誤概念チェック＋学習記録（共有コードなし）</h1>
+  <h1>等加速度運動（1次元）ICT教材 — ストロボ＋表示範囲</h1>
   <div class="sub">
-    バグ修正：各設問は「新しい挑戦」ごとに<b>1回だけ記録</b>します（連打で記録が増えません）。<br/>
-    レイアウト改善：右側はタブ切替（操作 / グラフ / テスト / 記録）で縦長を抑えています。
+    追加：<b>ストロボ（残像）</b>機能／<b>x軸表示範囲</b>スライダー。物体が消える問題を解決します。<br/>
+    右側はタブで縦長を抑制（操作 / グラフ / テスト / 記録）。
   </div>
 </header>
 
 <div class="wrap">
-  <!-- LEFT: simulation -->
+  <!-- LEFT -->
   <section class="card">
     <h2>
       <span>シミュレーション（位置）</span>
@@ -285,25 +248,19 @@
       </div>
 
       <div class="hint">
-        観察ポイント：
-        <ul style="margin:6px 0 0 18px; padding:0;">
-          <li><b>aが一定</b>なら、vは「同じ時間ごとに同じだけ」変化します。</li>
-          <li><b>v–t</b>の傾きは「1秒でどれだけvが変わるか」＝加速度a。</li>
-          <li><b>v–t</b>の面積は「平均速度×時間」＝変位（台形でOK）。</li>
-        </ul>
+        <b>ストロボON</b>にすると、一定時間ごとの位置が点で残ります。等加速度なら「点の間隔」がどう変わるかに注目できます。
       </div>
 
       <div class="note" id="noteExplain">
         <b>式（微分積分なし）</b><br/>
         v = v0 + a t<br/>
         x = x0 + v0 t + (1/2) a t²<br/><br/>
-        変位（0〜t）は「台形の面積」：<br/>
-        変位 = ((v0 + v)/2) × t
+        変位（0〜t）は台形： 変位 = ((v0 + v)/2) × t
       </div>
     </div>
   </section>
 
-  <!-- RIGHT: tabs -->
+  <!-- RIGHT -->
   <section class="card">
     <h2>
       <span>学習パネル</span>
@@ -330,7 +287,8 @@
           <div class="row" style="align-items:flex-end;">
             <div style="flex:1; min-width:220px;">
               <div class="label">学習者名（端末内ランキング表示に使用）</div>
-              <input id="studentName" type="text" placeholder="例：1A12 / 航平 など" style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.18); color:var(--text); font-size:12px;" />
+              <input id="studentName" type="text" placeholder="例：1A12 / 航平 など"
+                style="width:100%; padding:8px 10px; border-radius:10px; border:1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.18); color:var(--text); font-size:12px;" />
             </div>
           </div>
           <div class="msg" id="attemptMsg"></div>
@@ -354,6 +312,40 @@
             <input id="t" type="range" min="0" max="10" step="0.01" value="0" />
           </div>
         </div>
+
+        <div style="height:10px;"></div>
+
+        <!-- NEW: view range + strobe -->
+        <div class="grid2">
+          <div class="control">
+            <div class="row"><div class="label">x軸表示範囲（±Xmax）[m]</div><div class="val" id="valXMax"></div></div>
+            <input id="xMax" type="range" min="5" max="80" step="1" value="20" />
+            <div class="hint" style="margin-top:8px;">
+              物体が消える場合は、ここを広げてください（表示範囲を拡大します）。
+            </div>
+          </div>
+
+          <div class="control">
+            <div class="row">
+              <div class="label">ストロボ（残像）</div>
+              <div class="val" id="valStrobe"></div>
+            </div>
+
+            <div class="row">
+              <button class="btn" id="btnStrobeToggle">OFF</button>
+              <button class="btn bad" id="btnStrobeClear">残像クリア</button>
+            </div>
+
+            <div style="height:8px;"></div>
+
+            <div class="row"><div class="label">残像間隔 Δt [s]</div><div class="val" id="valStrobeDt"></div></div>
+            <input id="strobeDt" type="range" min="0.02" max="0.50" step="0.01" value="0.10" />
+
+            <div class="hint" style="margin-top:8px;">
+              Δtを小さくすると点が密になります。等加速度では時間が進むほど点間隔が広がります（加速）/狭まります（減速）。
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- グラフ -->
@@ -368,12 +360,9 @@
             <canvas id="xt"></canvas>
           </div>
         </div>
-        <div class="hint" style="margin-top:10px;">
-          グラフの見方：<b>傾き</b>と<b>面積</b>は「計算の道具」ではなく「意味の読み取り」です。ここでは台形（平均速度×時間）で十分です。
-        </div>
       </div>
 
-      <!-- テスト -->
+      <!-- テスト（省略なし：前回のまま） -->
       <div class="panel" id="tab-qs">
         <div class="quiz">
           <h3>誤概念チェック + 計算チェック（各設問は“1回の挑戦につき1回だけ記録”）</h3>
@@ -442,19 +431,14 @@
           <h3>学習記録（端末内保存）・端末内ランキング</h3>
 
           <div class="kv" style="margin-top:10px;">
-            <div class="box"><div class="k">回答数（挑戦ごと：各設問1回のみ）</div><div class="v" id="stAttempts">0</div></div>
+            <div class="box"><div class="k">回答数</div><div class="v" id="stAttempts">0</div></div>
             <div class="box"><div class="k">正解数</div><div class="v" id="stCorrect">0</div></div>
             <div class="box"><div class="k">正答率</div><div class="v" id="stAcc">0%</div></div>
             <div class="box"><div class="k">平均クリア時間</div><div class="v" id="stAvg">—</div></div>
           </div>
 
-          <div class="hint" style="margin-top:10px;">
-            「新しい挑戦」→ 最初の回答〜全問正解までの時間を計測します。<br/>
-            同じ設問を連打しても記録は増えません（バグ修正済み）。
-          </div>
-
           <div class="q" style="margin-top:10px;">
-            <div class="qt">端末内ランキング（同じPC/タブレット内の記録のみ）</div>
+            <div class="qt">端末内ランキング（同じ端末内の記録のみ）</div>
             <table>
               <thead>
                 <tr>
@@ -468,6 +452,7 @@
               <tbody id="boardBody"></tbody>
             </table>
           </div>
+
         </div>
       </div>
 
@@ -476,7 +461,8 @@
 </div>
 
 <footer>
-  仕様メモ：この版は「共有コード」なし（サーバなし・端末内のみ）で動作します。クラス全体のランキング共有は、別途サーバか集約方式が必要です。
+  ストロボ仕様：再生中、Δtごとに位置を記録します。残像クリアで履歴を消去できます。<br/>
+  x表示範囲は「±Xmax」で変更できます。物体が見えなくなったら範囲を広げてください。
 </footer>
 
 <script>
@@ -488,8 +474,8 @@
   const nowMs = () => performance.now();
 
   // ---------- Storage Keys ----------
-  const KEY_ME = "accel_me_v2";
-  const KEY_BOARD = "accel_board_v2";
+  const KEY_ME = "accel_me_v3";
+  const KEY_BOARD = "accel_board_v3";
 
   // ---------- State ----------
   const st = {
@@ -499,15 +485,14 @@
     simT: 0,
     lastTs: performance.now(),
 
-    // challenge timing
-    challengeActive: false,
-    challengeStartWall: null,
-    challengeFirstAnswer: null,
-    challengeEnded: false,
+    // view range
+    xMax: 20,
 
-    // per-challenge lock: each question recorded once
-    locked: {},   // qkey -> true
-    correctOnce: {} // qkey -> true
+    // strobe
+    strobeOn: false,
+    strobeDt: 0.10,
+    strobePoints: [], // {t, x}
+    nextStrobeT: 0,  // next time to sample in simulation time
   };
 
   // ---------- Physics ----------
@@ -587,7 +572,28 @@
     ctx.restore();
   }
 
-  // ---------- Draw simulation ----------
+  // ---------- Strobe logic ----------
+  function resetStrobe(){
+    st.strobePoints = [];
+    st.nextStrobeT = 0;
+  }
+  function stepStrobeSampling(prevT, currT){
+    if(!st.strobeOn) return;
+    // sample at strobeDt intervals, robust to frame dt
+    const dt = Math.max(0.001, st.strobeDt);
+    // ensure nextStrobeT is not behind prevT too far
+    if(st.nextStrobeT < prevT) st.nextStrobeT = prevT;
+
+    while(st.nextStrobeT <= currT + 1e-9){
+      const t = st.nextStrobeT;
+      st.strobePoints.push({ t, x: xAt(t) });
+      // cap history to avoid memory blow (e.g., 1200 points)
+      if(st.strobePoints.length > 1200) st.strobePoints.shift();
+      st.nextStrobeT += dt;
+    }
+  }
+
+  // ---------- Draw simulation with adjustable range + strobe ----------
   function drawSim(){
     const c = $("sim");
     const ctx = setupCanvas(c);
@@ -595,12 +601,15 @@
     const h = c.getBoundingClientRect().height;
     ctx.clearRect(0,0,w,h);
 
-    const xMin = -20, xMax = 20;
     const pad = 24;
     const trackY = h * 0.55;
+
+    // NEW: x-range controlled by xMax
+    const xMin = -st.xMax;
+    const xMax =  st.xMax;
     const X = (x)=> pad + (x - xMin) / (xMax - xMin) * (w - 2*pad);
 
-    // grid
+    // grid (10 divisions)
     ctx.save();
     ctx.strokeStyle = "rgba(255,255,255,.06)";
     ctx.lineWidth = 1;
@@ -623,12 +632,29 @@
     ctx.stroke();
     ctx.restore();
 
-    // label
+    // axis labels
     ctx.save();
-    ctx.fillStyle = "rgba(229,231,235,.7)";
+    ctx.fillStyle = "rgba(229,231,235,.75)";
     ctx.font = "12px system-ui, sans-serif";
-    ctx.fillText("x [m]", w - pad - 40, trackY + 28);
+    ctx.fillText(`x [m]  表示範囲: ${xMin} ～ ${xMax}`, pad, trackY + 28);
     ctx.restore();
+
+    // NEW: draw strobe points (residuals)
+    if(st.strobeOn && st.strobePoints.length){
+      ctx.save();
+      // older points more transparent
+      for(let i=0;i<st.strobePoints.length;i++){
+        const p = st.strobePoints[i];
+        const px = X(p.x);
+        const age = (st.strobePoints.length - 1 - i);
+        const alpha = clamp(0.35 - age*0.0012, 0.04, 0.35);
+        ctx.fillStyle = `rgba(96,165,250,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(px, trackY, 3, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
 
     // object
     const t = st.simT;
@@ -636,7 +662,7 @@
     const px = X(x);
 
     ctx.save();
-    ctx.fillStyle = "rgba(96,165,250,.9)";
+    ctx.fillStyle = "rgba(96,165,250,.95)";
     ctx.strokeStyle = "rgba(255,255,255,.35)";
     ctx.lineWidth = 1.5;
     ctx.beginPath();
@@ -676,7 +702,7 @@
     ctx.restore();
   }
 
-  // ---------- Draw graphs ----------
+  // ---------- Graphs ----------
   function drawGraphs(){
     const tMax = 10;
     const n = 220;
@@ -687,7 +713,6 @@
       vs.push(vAt(t));
       xps.push(xAt(t));
     }
-
     // v-t
     {
       const c = $("vt");
@@ -719,7 +744,6 @@
       ctx.fill();
       ctx.restore();
     }
-
     // x-t
     {
       const c = $("xt");
@@ -740,11 +764,9 @@
     }
   }
 
-  // ---------- Learning record ----------
+  // ---------- Learning record (same as previous; simplified to essentials) ----------
   function safeJsonParse(s){ try{ return JSON.parse(s); }catch{ return null; } }
-  function defaultMe(){
-    return { name:"", attempts:0, correct:0, totalTimeMs:0, completedChallenges:0, lastUpdated:Date.now() };
-  }
+  function defaultMe(){ return { name:"", attempts:0, correct:0, totalTimeMs:0, completedChallenges:0, lastUpdated:Date.now() }; }
   function loadMe(){
     const raw = localStorage.getItem(KEY_ME);
     const obj = raw ? safeJsonParse(raw) : null;
@@ -789,7 +811,6 @@
     const board = loadBoard();
     const idx = board.findIndex(x => x && x.name === entry.name);
     if(idx >= 0){
-      // keep better: higher acc, then lower avg
       const a1 = entry.acc, a0 = board[idx].acc ?? 0;
       const t1 = entry.avgSec ?? Infinity, t0 = board[idx].avgSec ?? Infinity;
       const better = (a1 > a0) || (a1 === a0 && t1 < t0);
@@ -802,17 +823,13 @@
 
   function renderBoard(){
     const body = $("boardBody");
-    const board = loadBoard()
-      .filter(x => x && typeof x.name === "string" && x.name.trim().length > 0);
-
+    const board = loadBoard().filter(x => x && typeof x.name === "string" && x.name.trim().length > 0);
     board.sort((p,q) => {
       if((q.acc ?? 0) !== (p.acc ?? 0)) return (q.acc ?? 0) - (p.acc ?? 0);
-      const pt = p.avgSec ?? Infinity;
-      const qt = q.avgSec ?? Infinity;
+      const pt = p.avgSec ?? Infinity, qt = q.avgSec ?? Infinity;
       if(pt !== qt) return pt - qt;
       return (q.lastUpdated ?? 0) - (p.lastUpdated ?? 0);
     });
-
     body.innerHTML = "";
     if(board.length === 0){
       const tr = document.createElement("tr");
@@ -835,51 +852,53 @@
       body.appendChild(tr);
     });
   }
-
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, m => ({
       "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
     }[m]));
   }
 
-  // ---------- Challenge control ----------
+  // ---------- Challenge locks (same bugfix idea) ----------
+  const quiz = {
+    locked: {},
+    correctOnce: {},
+    challengeActive: false,
+    challengeStart: null,
+    firstAnswer: null,
+    ended: false
+  };
+
   function resetChallengeLocks(){
-    st.locked = {};
-    st.correctOnce = {};
-    // enable all quiz buttons
+    quiz.locked = {};
+    quiz.correctOnce = {};
     document.querySelectorAll(".q[data-qkey] button").forEach(b => b.disabled = false);
     ["q1check","q2check","q3check"].forEach(id => { $(id).disabled = false; });
-    // clear messages
     ["mq1msg","mq2msg","mq3msg","q1msg","q2msg","q3msg"].forEach(id => { $(id).textContent=""; $(id).className="msg"; });
-    // keep inputs as-is (optional). If you want to clear, uncomment:
-    // ["q1in","q2in","q3in"].forEach(id => { $(id).value=""; });
   }
 
   function startChallenge(){
-    st.challengeActive = true;
-    st.challengeStartWall = nowMs();
-    st.challengeFirstAnswer = null;
-    st.challengeEnded = false;
+    quiz.challengeActive = true;
+    quiz.challengeStart = nowMs();
+    quiz.firstAnswer = null;
+    quiz.ended = false;
     resetChallengeLocks();
-    $("attemptMsg").textContent = "新しい挑戦を開始しました。各設問は1回だけ記録されます。";
+    $("attemptMsg").textContent = "新しい挑戦を開始しました。";
     $("attemptMsg").className = "msg warn";
   }
 
   function markAnswered(){
-    if(!st.challengeActive) return;
-    if(st.challengeFirstAnswer === null){
-      st.challengeFirstAnswer = nowMs();
-    }
+    if(!quiz.challengeActive) return;
+    if(quiz.firstAnswer === null) quiz.firstAnswer = nowMs();
   }
 
   function maybeEndChallengeIfAllCorrect(){
-    if(!st.challengeActive || st.challengeEnded) return;
+    if(!quiz.challengeActive || quiz.ended) return;
     const keys = ["mq1","mq2","mq3","q1","q2","q3"];
-    const ok = keys.every(k => st.correctOnce[k] === true);
+    const ok = keys.every(k => quiz.correctOnce[k] === true);
     if(!ok) return;
 
     const end = nowMs();
-    const start = (st.challengeFirstAnswer ?? st.challengeStartWall ?? end);
+    const start = (quiz.firstAnswer ?? quiz.challengeStart ?? end);
     const dur = Math.max(0, end - start);
 
     me.totalTimeMs += dur;
@@ -887,21 +906,18 @@
     saveMe(me);
     upsertBoardFromMe();
 
-    st.challengeEnded = true;
-    st.challengeActive = false;
+    quiz.ended = true;
+    quiz.challengeActive = false;
 
-    $("attemptMsg").textContent = `挑戦クリア：所要時間 ${(dur/1000).toFixed(1)} s を記録しました。`;
+    $("attemptMsg").textContent = `挑戦クリア：所要時間 ${(dur/1000).toFixed(1)} s`;
     $("attemptMsg").className = "msg good";
     renderStats();
     renderBoard();
   }
 
-  // ---------- FIX: record once per question per challenge ----------
   function recordOnce(qkey, isCorrect){
-    // If already recorded for this question in this challenge, do nothing
-    if(st.locked[qkey]) return false;
-
-    st.locked[qkey] = true;
+    if(quiz.locked[qkey]) return false;
+    quiz.locked[qkey] = true;
     me.attempts += 1;
     if(isCorrect) me.correct += 1;
     saveMe(me);
@@ -910,132 +926,108 @@
     renderBoard();
     return true;
   }
-
   function lockQuestionUI(qkey){
     const q = document.querySelector(`.q[data-qkey="${qkey}"]`);
     if(!q) return;
     q.querySelectorAll("button").forEach(b => b.disabled = true);
-    // numeric: disable check button handled separately
   }
 
-  // ---------- Answer helpers ----------
   function setMsg(id, ok, text){
     const el = $(id);
     el.textContent = text;
     el.className = "msg " + (ok ? "good" : "bad");
   }
-
   function approx(input, correct, tol){
     if(input === null) return { ok:false, msg:"数値を入力してください。" };
     const diff = Math.abs(input - correct);
     if(diff <= tol) return { ok:true, msg:`正解（許容誤差 ±${tol}）。` };
-    const hint = (diff > 3*tol) ? "符号と式の代入（v=v0+at / x=x0+v0t+(1/2)at²）を確認。" : "惜しい。計算手順か四捨五入を確認。";
-    return { ok:false, msg:`不正解。ヒント：${hint}` };
+    return { ok:false, msg:"不正解。符号と代入を確認してください。" };
   }
 
-  // ---------- Bind misconception questions (choice) ----------
   function bindChoiceQuestions(){
     // mq1 correct = F
-    const mq1 = document.querySelector(`.q[data-qkey="mq1"]`);
-    mq1.querySelectorAll("button[data-choice]").forEach(btn => {
+    document.querySelector(`.q[data-qkey="mq1"]`).querySelectorAll("button[data-choice]").forEach(btn => {
       btn.addEventListener("click", () => {
         markAnswered();
         const ans = btn.getAttribute("data-choice");
         const ok = (ans === "F");
-        // record once and lock
-        const recorded = recordOnce("mq1", ok);
+        recordOnce("mq1", ok);
         lockQuestionUI("mq1");
-        if(ok){
-          st.correctOnce["mq1"] = true;
-          setMsg("mq1msg", true, "正解。v=0は「瞬間の状態」。aは「変化の向き」で、別物です（投げ上げ頂点でもaは下向き）。");
-        }else{
-          setMsg("mq1msg", false, "不正解。速度が0でも、加速度が0とは限りません。vとaは別の量です。");
-        }
-        // even if not recorded (shouldn't happen because locked), keep end check
+        if(ok){ quiz.correctOnce["mq1"] = true; setMsg("mq1msg", true, "正解。vとaは別の量です。"); }
+        else{ setMsg("mq1msg", false, "不正解。速度0でも加速度は0とは限りません。"); }
         maybeEndChallengeIfAllCorrect();
-      }, { once:false });
+      });
     });
 
     // mq2 correct = B
-    const mq2 = document.querySelector(`.q[data-qkey="mq2"]`);
-    mq2.querySelectorAll("button[data-choice]").forEach(btn => {
+    document.querySelector(`.q[data-qkey="mq2"]`).querySelectorAll("button[data-choice]").forEach(btn => {
       btn.addEventListener("click", () => {
         markAnswered();
         const ans = btn.getAttribute("data-choice");
         const ok = (ans === "B");
         recordOnce("mq2", ok);
         lockQuestionUI("mq2");
-        if(ok){
-          st.correctOnce["mq2"] = true;
-          setMsg("mq2msg", true, "正解。面積は「平均速度×時間」の意味で、変位（x−x0）です。");
-        }else{
-          setMsg("mq2msg", false, "不正解。傾きが加速度、面積が変位です（面積＝平均速度×時間）。");
-        }
+        if(ok){ quiz.correctOnce["mq2"] = true; setMsg("mq2msg", true, "正解。面積は変位（平均速度×時間）です。"); }
+        else{ setMsg("mq2msg", false, "不正解。傾きが加速度、面積が変位です。"); }
         maybeEndChallengeIfAllCorrect();
       });
     });
 
     // mq3 correct = B
-    const mq3 = document.querySelector(`.q[data-qkey="mq3"]`);
-    mq3.querySelectorAll("button[data-choice]").forEach(btn => {
+    document.querySelector(`.q[data-qkey="mq3"]`).querySelectorAll("button[data-choice]").forEach(btn => {
       btn.addEventListener("click", () => {
         markAnswered();
         const ans = btn.getAttribute("data-choice");
         const ok = (ans === "B");
         recordOnce("mq3", ok);
         lockQuestionUI("mq3");
-        if(ok){
-          st.correctOnce["mq3"] = true;
-          setMsg("mq3msg", true, "正解。aが負なら、vは時間とともに小さくなる方向に変化します（vが負になるかはv0次第）。");
-        }else{
-          setMsg("mq3msg", false, "不正解。加速度の符号は「変化の向き」。速度の符号そのものとは別です。");
-        }
+        if(ok){ quiz.correctOnce["mq3"] = true; setMsg("mq3msg", true, "正解。a<0ならvは減少方向に変化。"); }
+        else{ setMsg("mq3msg", false, "不正解。aの符号は変化の向きです。"); }
         maybeEndChallengeIfAllCorrect();
       });
     });
   }
 
-  // ---------- Bind numeric questions (check once per challenge) ----------
   function bindNumeric(){
     $("q1check").addEventListener("click", () => {
       markAnswered();
-      if(st.locked["q1"]) return; // already recorded
+      if(quiz.locked["q1"]) return;
       const t = 4.0;
       const correct = st.v0 + st.a*t;
       const input = Number.isFinite(Number($("q1in").value)) ? Number($("q1in").value) : null;
       const r = approx(input, correct, 0.2);
       recordOnce("q1", r.ok);
       $("q1check").disabled = true;
-      if(r.ok) st.correctOnce["q1"] = true;
+      if(r.ok) quiz.correctOnce["q1"] = true;
       setMsg("q1msg", r.ok, `正解値: ${fmt(correct,2)} m/s。${r.msg}`);
       maybeEndChallengeIfAllCorrect();
     });
 
     $("q2check").addEventListener("click", () => {
       markAnswered();
-      if(st.locked["q2"]) return;
+      if(quiz.locked["q2"]) return;
       const t = 4.0;
       const correct = st.x0 + st.v0*t + 0.5*st.a*t*t;
       const input = Number.isFinite(Number($("q2in").value)) ? Number($("q2in").value) : null;
       const r = approx(input, correct, 0.3);
       recordOnce("q2", r.ok);
       $("q2check").disabled = true;
-      if(r.ok) st.correctOnce["q2"] = true;
+      if(r.ok) quiz.correctOnce["q2"] = true;
       setMsg("q2msg", r.ok, `正解値: ${fmt(correct,2)} m。${r.msg}`);
       maybeEndChallengeIfAllCorrect();
     });
 
     $("q3check").addEventListener("click", () => {
       markAnswered();
-      if(st.locked["q3"]) return;
+      if(quiz.locked["q3"]) return;
       const t = 4.0;
       const correct = dispTrap(t);
       const input = Number.isFinite(Number($("q3in").value)) ? Number($("q3in").value) : null;
       const r = approx(input, correct, 0.3);
       recordOnce("q3", r.ok);
       $("q3check").disabled = true;
-      if(r.ok) st.correctOnce["q3"] = true;
-      setMsg("q3msg", r.ok, `正解値: ${fmt(correct,2)} m（平均速度×時間）。${r.msg}`);
+      if(r.ok) quiz.correctOnce["q3"] = true;
+      setMsg("q3msg", r.ok, `正解値: ${fmt(correct,2)} m。${r.msg}`);
       maybeEndChallengeIfAllCorrect();
     });
   }
@@ -1043,12 +1035,7 @@
   // ---------- Tabs ----------
   function bindTabs(){
     const btns = document.querySelectorAll(".tabbtn");
-    const panels = {
-      op: $("tab-op"),
-      gr: $("tab-gr"),
-      qs: $("tab-qs"),
-      st: $("tab-st")
-    };
+    const panels = { op: $("tab-op"), gr: $("tab-gr"), qs: $("tab-qs"), st: $("tab-st") };
     btns.forEach(b => {
       b.addEventListener("click", () => {
         btns.forEach(x => x.classList.remove("active"));
@@ -1056,16 +1043,12 @@
         const key = b.getAttribute("data-tab");
         Object.values(panels).forEach(p => p.classList.remove("show"));
         panels[key].classList.add("show");
-
-        // redraw graphs if opening graph panel (canvas needs correct size)
-        if(key === "gr"){
-          drawGraphs();
-        }
+        if(key === "gr") drawGraphs();
       });
     });
   }
 
-  // ---------- UI sync ----------
+  // ---------- Sync UI ----------
   function syncUI(){
     $("x0").value = st.x0;
     $("v0").value = st.v0;
@@ -1076,6 +1059,15 @@
     $("valV0").textContent = fmt(st.v0,2);
     $("valA").textContent  = fmt(st.a,2);
     $("valT").textContent  = fmt(st.t,2);
+
+    $("xMax").value = st.xMax;
+    $("valXMax").textContent = "±" + fmt(st.xMax,0) + " m";
+
+    $("strobeDt").value = st.strobeDt;
+    $("valStrobeDt").textContent = fmt(st.strobeDt,2) + " s";
+    $("valStrobe").textContent = st.strobeOn ? "ON" : "OFF";
+    $("btnStrobeToggle").textContent = st.strobeOn ? "ON" : "OFF";
+    $("btnStrobeToggle").className = "btn " + (st.strobeOn ? "good" : "");
 
     $("readT").textContent = fmt(st.simT,2);
     $("readX").textContent = fmt(xAt(st.simT),2);
@@ -1088,9 +1080,7 @@
     $("noteExplain").classList.toggle("show", st.explain);
 
     drawSim();
-    // graphs are drawn on init + when switching to graph tab; but drawing here is ok too
     drawGraphs();
-
     renderStats();
     renderBoard();
   }
@@ -1107,15 +1097,20 @@
     st.lastTs = now;
 
     if(st.playing){
+      const prevT = st.simT;
       st.simT = clamp(st.simT + dt, 0, 10);
       st.t = st.simT;
+
+      // NEW: strobe sampling during playback
+      stepStrobeSampling(prevT, st.simT);
+
       if(st.simT >= 10) st.playing = false;
       syncUI();
     }
     requestAnimationFrame(tick);
   }
 
-  // ---------- Bind controls ----------
+  // ---------- Controls ----------
   function bindControls(){
     ["x0","v0","a","t"].forEach(id => {
       $(id).addEventListener("input", (e) => {
@@ -1124,14 +1119,43 @@
       });
     });
 
-    $("btnExplain").addEventListener("click", () => {
-      st.explain = !st.explain;
+    $("xMax").addEventListener("input", (e) => {
+      st.xMax = parseFloat(e.target.value);
       syncUI();
     });
+
+    $("strobeDt").addEventListener("input", (e) => {
+      st.strobeDt = parseFloat(e.target.value);
+      // keep nextStrobeT aligned to avoid weird bursts
+      st.nextStrobeT = st.simT;
+      syncUI();
+    });
+
+    $("btnStrobeToggle").addEventListener("click", () => {
+      st.strobeOn = !st.strobeOn;
+      // when turning on, align to current time
+      if(st.strobeOn){
+        st.nextStrobeT = st.simT;
+        // also drop a point immediately (optional)
+        st.strobePoints.push({ t: st.simT, x: xAt(st.simT) });
+      }
+      syncUI();
+    });
+
+    $("btnStrobeClear").addEventListener("click", () => {
+      resetStrobe();
+      syncUI();
+    });
+
+    $("btnExplain").addEventListener("click", () => { st.explain = !st.explain; syncUI(); });
 
     $("btnPlay").addEventListener("click", () => {
       st.playing = true;
       st.lastTs = performance.now();
+      // if strobe is on and empty, align sampling
+      if(st.strobeOn && st.strobePoints.length === 0){
+        st.nextStrobeT = st.simT;
+      }
     });
 
     $("btnPause").addEventListener("click", () => {
@@ -1144,10 +1168,7 @@
       st.playing = false;
       st.simT = 0;
       st.t = 0;
-      st.challengeActive = false;
-      st.challengeEnded = false;
-      st.challengeStartWall = null;
-      st.challengeFirstAnswer = null;
+      resetStrobe();
       resetChallengeLocks();
       $("attemptMsg").textContent = "";
       $("attemptMsg").className = "msg";
@@ -1183,11 +1204,7 @@
       renderBoard();
     });
 
-    window.addEventListener("resize", () => {
-      // redraw canvases
-      drawSim();
-      drawGraphs();
-    });
+    window.addEventListener("resize", () => { drawSim(); drawGraphs(); });
   }
 
   // ---------- init ----------
@@ -1199,8 +1216,11 @@
   bindChoiceQuestions();
   bindNumeric();
 
-  // start first challenge automatically (optional). If you don't want, comment out:
+  // start challenge by default
   startChallenge();
+
+  // init strobe state
+  resetStrobe();
 
   syncUI();
   requestAnimationFrame(tick);
