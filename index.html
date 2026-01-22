@@ -639,22 +639,84 @@
     ctx.fillText(`x [m]  表示範囲: ${xMin} ～ ${xMax}`, pad, trackY + 28);
     ctx.restore();
 
-    // NEW: draw strobe points (residuals)
-    if(st.strobeOn && st.strobePoints.length){
-      ctx.save();
-      // older points more transparent
-      for(let i=0;i<st.strobePoints.length;i++){
-        const p = st.strobePoints[i];
-        const px = X(p.x);
-        const age = (st.strobePoints.length - 1 - i);
-        const alpha = clamp(0.35 - age*0.0012, 0.04, 0.35);
-        ctx.fillStyle = `rgba(96,165,250,${alpha})`;
-        ctx.beginPath();
-        ctx.arc(px, trackY, 3, 0, Math.PI*2);
-        ctx.fill();
-      }
-      ctx.restore();
-    }
+    // NEW: draw strobe points + x-axis labels
+if(st.strobeOn && st.strobePoints.length){
+  // 画面内の点だけを対象にする（表示範囲外はラベル不要）
+  const inView = st.strobePoints.filter(p => p.x >= xMin && p.x <= xMax);
+
+  // ラベル重なり対策：
+  // - 最大表示数を制限
+  // - 近すぎるものを間引く
+  const MAX_LABELS = 30;
+  const MIN_PX_GAP = 34; // ラベル同士の最小間隔（px）
+
+  // 点が多い場合は新しい方を優先して表示（見た目の理解がしやすい）
+  const src = inView.slice(-200); // 念のため直近に絞る
+
+  ctx.save();
+
+  // まず点（残像）を描く
+  for(let i=0;i<src.length;i++){
+    const p = src[i];
+    const px = X(p.x);
+    const age = (src.length - 1 - i);
+    const alpha = clamp(0.35 - age*0.0012, 0.04, 0.35);
+    ctx.fillStyle = `rgba(96,165,250,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(px, trackY, 3, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // 次にラベルを描く（間引き）
+  ctx.font = "11px system-ui, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+
+  // 表示密度に応じた桁数（簡易ルール）
+  const range = (xMax - xMin);
+  const decimals = range >= 60 ? 0 : (range >= 20 ? 1 : 2);
+
+  let lastLabelPx = -1e9;
+  let count = 0;
+
+  // 古い→新しい順に走査すると、終盤が密集しがち。
+  // 新しい→古い順で表示し、最後に見えている最新値が残りやすい。
+  for(let i=src.length-1; i>=0; i--){
+    const p = src[i];
+    const px = X(p.x);
+
+    if(Math.abs(px - lastLabelPx) < MIN_PX_GAP) continue;
+
+    // 目盛り（短い縦線）
+    ctx.strokeStyle = "rgba(229,231,235,.40)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(px, trackY + 2);
+    ctx.lineTo(px, trackY + 10);
+    ctx.stroke();
+
+    // ラベル（x値）
+    const label = "x=" + p.x.toFixed(decimals) + "m";
+    // 背景の読みやすさ確保（薄い角丸背景）
+    const y = trackY + 30;
+    const padX = 6, padY = 4;
+    const textW = ctx.measureText(label).width;
+
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    roundRect(ctx, px - textW/2 - padX, y - 14 - padY, textW + padX*2, 14 + padY*2, 6);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(229,231,235,.92)";
+    ctx.fillText(label, px, y - 2);
+
+    lastLabelPx = px;
+    count++;
+    if(count >= MAX_LABELS) break;
+  }
+
+  ctx.restore();
+}
+
 
     // object
     const t = st.simT;
