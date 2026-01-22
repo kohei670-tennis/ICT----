@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>等加速度運動（ストロボ＋位置ラベル＋表示範囲）</title>
+  <title>等加速度運動（ストロボ＋位置ラベル＋誤概念チェック）</title>
   <style>
     :root{
       --bg:#0b1220;
@@ -13,6 +13,7 @@
       --muted:#94a3b8;
       --accent:#60a5fa;
       --good:#34d399;
+      --bad:#fb7185;
       --warn:#fbbf24;
     }
     *{ box-sizing:border-box; }
@@ -91,12 +92,14 @@
     .btn:hover{ border-color: rgba(255,255,255,.28); transform: translateY(-1px); }
     .btn.primary{ background: rgba(96,165,250,.18); border-color: rgba(96,165,250,.40); }
     .btn.good{ background: rgba(52,211,153,.14); border-color: rgba(52,211,153,.35); }
+    .btn.bad{ background: rgba(251,113,133,.12); border-color: rgba(251,113,133,.30); }
     .btn.warn{ background: rgba(251,191,36,.10); border-color: rgba(251,191,36,.35); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; transform:none !important; }
 
     /* Main simulation canvas: BIG */
     #sim{
       width:100%;
-      height:520px; /* ←大きく表示 */
+      height:520px;
       display:block;
       background: rgba(0,0,0,.10);
       border:1px solid rgba(255,255,255,.08);
@@ -132,6 +135,16 @@
 
     .label{ font-size:12px; color:var(--muted); margin-bottom:6px; }
     input[type="range"]{ width:100%; }
+    input[type="number"]{
+      width:160px;
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      font-size:12px;
+      font-variant-numeric: tabular-nums;
+    }
     .val{ margin-left:auto; color:#dbeafe; font-size:13px; font-variant-numeric: tabular-nums; }
 
     .hint{
@@ -146,6 +159,43 @@
     }
     .hint b{ color:#dbeafe; }
 
+    /* Tabs */
+    .tabs{ display:flex; gap:8px; flex-wrap:wrap; }
+    .tabbtn{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .tabbtn.active{ border-color: rgba(96,165,250,.55); background: rgba(96,165,250,.20); }
+    .tab{ display:none; }
+    .tab.show{ display:block; }
+
+    /* Quiz */
+    .quiz{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.14);
+    }
+    .quiz h3{ margin:0 0 8px; font-size:13px; color:#dbeafe; }
+    .q{
+      margin-top:10px;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+    }
+    .qt{ font-size:12px; color:var(--muted); line-height:1.5; }
+    .ans{ margin-top:8px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .msg{ margin-top:8px; font-size:12px; color:var(--muted); line-height:1.45; }
+    .msg.good{ color: var(--good); }
+    .msg.bad{ color: var(--bad); }
+    .msg.warn{ color: var(--warn); }
+
     footer{
       max-width:1200px;
       margin:0 auto;
@@ -159,10 +209,10 @@
 
 <body>
 <header>
-  <h1>等加速度運動（1次元）— ストロボ＋位置ラベル＋表示範囲</h1>
+  <h1>等加速度運動（1次元）— ストロボ＋位置ラベル＋誤概念チェック</h1>
   <div class="sub">
     仕様：<b>x0=0固定</b>（初期位置スライダーなし）。ストロボONでΔtごとに残像点＋<b>x軸上に位置値</b>を表示。<br>
-    表示範囲（±Xmax）を変えると、物体が画面外へ行っても追えます。
+    誤概念チェックは「新しい挑戦」ごとに各設問1回のみ記録（連打でカウントが増えません）。
   </div>
 </header>
 
@@ -191,69 +241,139 @@
 
       <div class="hint">
         <b>見どころ</b>：ストロボ点の間隔が時間とともに変わります（加速なら広がる、減速なら詰まる）。<br>
-        速度0の瞬間があっても、加速度が0とは限りません。
+        「速度が0の瞬間」と「加速度が0」は別物です（投げ上げ頂点でもaは一定）。
       </div>
     </div>
   </section>
 
-  <!-- RIGHT: Controls -->
+  <!-- RIGHT: Controls + Quiz -->
   <section class="card">
     <h2>
-      <span>操作</span>
+      <span>操作・テスト</span>
       <span class="row">
+        <button class="btn good" id="btnNewAttempt">新しい挑戦</button>
         <button class="btn" id="btnStrobeToggle">ストロボ OFF</button>
         <button class="btn warn" id="btnStrobeClear">残像クリア</button>
       </span>
     </h2>
 
     <div class="content">
-      <div class="panel">
-        <div class="row">
-          <div class="label">初速度 v0 [m/s]</div>
-          <div class="val" id="valV0"></div>
-        </div>
-        <input id="v0" type="range" min="-10" max="10" step="0.1" value="2" />
-
-        <div style="height:10px;"></div>
-
-        <div class="row">
-          <div class="label">加速度 a [m/s²]</div>
-          <div class="val" id="valA"></div>
-        </div>
-        <input id="a" type="range" min="-10" max="10" step="0.1" value="1" />
-
-        <div style="height:10px;"></div>
-
-        <div class="row">
-          <div class="label">表示時刻 t [s]（停止中に調整）</div>
-          <div class="val" id="valT"></div>
-        </div>
-        <input id="t" type="range" min="0" max="10" step="0.01" value="0" />
+      <div class="tabs" role="tablist" aria-label="右タブ">
+        <button class="tabbtn active" data-tab="op">操作</button>
+        <button class="tabbtn" data-tab="quiz">誤概念チェック</button>
       </div>
 
-      <div class="panel">
-        <div class="row">
-          <div class="label">x軸表示範囲（±Xmax）[m]</div>
-          <div class="val" id="valXMax"></div>
-        </div>
-        <input id="xMax" type="range" min="5" max="120" step="1" value="25" />
+      <div style="height:10px;"></div>
 
-        <div class="hint" style="margin-top:10px;">
-          物体が端に寄って見にくいときは、±Xmaxを広げてください。
+      <!-- 操作 -->
+      <div class="tab show" id="tab-op">
+        <div class="panel">
+          <div class="row">
+            <div class="label">初速度 v0 [m/s]</div>
+            <div class="val" id="valV0"></div>
+          </div>
+          <input id="v0" type="range" min="-10" max="10" step="0.1" value="2" />
+
+          <div style="height:10px;"></div>
+
+          <div class="row">
+            <div class="label">加速度 a [m/s²]</div>
+            <div class="val" id="valA"></div>
+          </div>
+          <input id="a" type="range" min="-10" max="10" step="0.1" value="1" />
+
+          <div style="height:10px;"></div>
+
+          <div class="row">
+            <div class="label">表示時刻 t [s]（停止中に調整）</div>
+            <div class="val" id="valT"></div>
+          </div>
+          <input id="t" type="range" min="0" max="10" step="0.01" value="0" />
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <div class="label">x軸表示範囲（±Xmax）[m]</div>
+            <div class="val" id="valXMax"></div>
+          </div>
+          <input id="xMax" type="range" min="5" max="120" step="1" value="25" />
+
+          <div class="hint" style="margin-top:10px;">
+            物体が端に寄って見にくいときは、±Xmaxを広げてください。
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="row">
+            <div class="label">ストロボ間隔 Δt [s]</div>
+            <div class="val" id="valStrobeDt"></div>
+          </div>
+          <input id="strobeDt" type="range" min="0.02" max="0.50" step="0.01" value="0.10" />
+          <div class="hint" style="margin-top:10px;">
+            Δtを小さくすると残像が密になり、ラベルは自動的に間引き表示します（重なり防止）。
+          </div>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="row">
-          <div class="label">ストロボ間隔 Δt [s]</div>
-          <div class="val" id="valStrobeDt"></div>
-        </div>
-        <input id="strobeDt" type="range" min="0.02" max="0.50" step="0.01" value="0.10" />
+      <!-- 誤概念チェック -->
+      <div class="tab" id="tab-quiz">
+        <div class="quiz">
+          <h3>誤概念チェック（各設問は1回の挑戦につき1回だけ記録）</h3>
+          <div class="msg" id="attemptMsg"></div>
 
-        <div class="hint" style="margin-top:10px;">
-          Δtを小さくすると残像が密になり、ラベルは自動的に間引き表示します（重なり防止）。
+          <div class="q" data-qkey="m1">
+            <div class="qt">M1. 等加速度運動で「速度vが0になった瞬間」、加速度aも0になる？</div>
+            <div class="ans">
+              <button class="btn" data-choice="T">なる</button>
+              <button class="btn" data-choice="F">ならない</button>
+            </div>
+            <div class="msg" id="m1msg"></div>
+          </div>
+
+          <div class="q" data-qkey="m2">
+            <div class="qt">M2. 加速度aが一定のとき、速度vは時間とともにどう変化する？</div>
+            <div class="ans">
+              <button class="btn" data-choice="A">一定のまま</button>
+              <button class="btn" data-choice="B">同じ時間ごとに同じだけ増減する</button>
+              <button class="btn" data-choice="C">指数関数的に増える</button>
+            </div>
+            <div class="msg" id="m2msg"></div>
+          </div>
+
+          <div class="q" data-qkey="m3">
+            <div class="qt">M3. 「加速度が負（a&lt;0）」のとき、速度vは必ず負になる？</div>
+            <div class="ans">
+              <button class="btn" data-choice="T">必ず負になる</button>
+              <button class="btn" data-choice="F">必ずしも負にならない</button>
+            </div>
+            <div class="msg" id="m3msg"></div>
+          </div>
+
+          <div class="q" data-qkey="m4">
+            <div class="qt">M4. ストロボ点の間隔が「だんだん広がる」運動は、どちら？</div>
+            <div class="ans">
+              <button class="btn" data-choice="A">加速（|v|が増える方向）</button>
+              <button class="btn" data-choice="B">減速（|v|が減る方向）</button>
+            </div>
+            <div class="msg" id="m4msg"></div>
+          </div>
+
+          <div class="q" data-qkey="m5">
+            <div class="qt">M5. いまの設定で、t=4.0 s の速度 v は？（v = v0 + at）</div>
+            <div class="ans">
+              <input id="m5in" type="number" step="0.01" placeholder="例: 6.00">
+              <button class="btn primary" id="m5check">判定</button>
+            </div>
+            <div class="msg" id="m5msg"></div>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            ヒント：微分積分は不要です。<br>
+            v = v0 + at、x = v0t + (1/2)at²（今回はx0=0固定）
+          </div>
         </div>
       </div>
+
     </div>
   </section>
 </div>
@@ -265,7 +385,7 @@
 <script>
 (() => {
   // =========================
-  //  基本ユーティリティ
+  //  Utils
   // =========================
   const $ = (id) => document.getElementById(id);
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -293,7 +413,7 @@
   }
 
   // =========================
-  //  状態（x0=0固定）
+  //  State (x0 fixed)
   // =========================
   const X0 = 0;
   const st = {
@@ -315,37 +435,44 @@
     lastTs: performance.now(),
   };
 
+  // Quiz lock per attempt (prevents infinite increments by repeated clicking)
+  const quiz = {
+    attemptNo: 0,
+    locked: {},       // qkey -> true
+    answered: {},     // qkey -> true
+    correct: {},      // qkey -> true
+  };
+
   // =========================
-  //  物理
+  //  Physics
   // =========================
   const vAt = (t) => st.v0 + st.a * t;
   const xAt = (t) => X0 + st.v0 * t + 0.5 * st.a * t * t;
 
   // =========================
-  //  ストロボ
+  //  Strobe
   // =========================
   function resetStrobe(){
     st.strobePoints = [];
-    st.nextStrobeT = st.simT; // 現在時刻からサンプリング
+    st.nextStrobeT = st.simT;
   }
 
   function sampleStrobeBetween(prevT, currT){
     if(!st.strobeOn) return;
     const dt = Math.max(0.001, st.strobeDt);
 
-    // nextStrobeT が過去に取り残されるのを防ぐ
     if(st.nextStrobeT < prevT) st.nextStrobeT = prevT;
 
     while(st.nextStrobeT <= currT + 1e-9){
       const t = st.nextStrobeT;
       st.strobePoints.push({ t, x: xAt(t) });
-      if(st.strobePoints.length > 1400) st.strobePoints.shift(); // メモリ上限
+      if(st.strobePoints.length > 1400) st.strobePoints.shift();
       st.nextStrobeT += dt;
     }
   }
 
   // =========================
-  //  描画（大きめ）
+  //  Drawing
   // =========================
   function drawSim(){
     const c = $("sim");
@@ -354,16 +481,14 @@
     const h = c.getBoundingClientRect().height;
     ctx.clearRect(0,0,w,h);
 
-    // レール位置：下側にラベル帯を確保
     const trackY = h * 0.48;
     const pad = 26;
 
-    // x表示範囲
     const xMin = -st.xMax;
     const xMax =  st.xMax;
     const X = (x)=> pad + (x - xMin) / (xMax - xMin) * (w - 2*pad);
 
-    // 背景グリッド
+    // grid
     ctx.save();
     ctx.strokeStyle = "rgba(255,255,255,.06)";
     ctx.lineWidth = 1;
@@ -376,7 +501,7 @@
     }
     ctx.restore();
 
-    // レール
+    // rail
     ctx.save();
     ctx.strokeStyle = "rgba(255,255,255,.28)";
     ctx.lineWidth = 2.2;
@@ -386,19 +511,19 @@
     ctx.stroke();
     ctx.restore();
 
-    // 範囲表示
+    // range label
     ctx.save();
     ctx.fillStyle = "rgba(229,231,235,.78)";
     ctx.font = "13px system-ui, sans-serif";
     ctx.fillText(`x 範囲: ${xMin} ～ ${xMax} [m]`, pad, pad + 12);
     ctx.restore();
 
-    // ストロボ点＋位置ラベル
+    // strobe points + x labels
     if(st.strobeOn && st.strobePoints.length){
       const inView = st.strobePoints.filter(p => p.x >= xMin && p.x <= xMax);
-      const src = inView.slice(-260); // 画面負荷軽減
+      const src = inView.slice(-260);
 
-      // 点
+      // points
       ctx.save();
       for(let i=0;i<src.length;i++){
         const p = src[i];
@@ -412,9 +537,9 @@
       }
       ctx.restore();
 
-      // ラベル（重なり防止で間引く）
+      // labels (dedupe by pixel gap)
       const MAX_LABELS = 28;
-      const MIN_PX_GAP = 52; // 大きめキャンバス想定
+      const MIN_PX_GAP = 52;
       const range = (xMax - xMin);
       const decimals = range >= 80 ? 0 : (range >= 30 ? 1 : 2);
 
@@ -426,13 +551,12 @@
       let lastLabelPx = -1e9;
       let count = 0;
 
-      // 新しい点を優先して表示（右端に最新が残りやすい）
       for(let i=src.length-1; i>=0; i--){
         const p = src[i];
         const px = X(p.x);
         if(Math.abs(px - lastLabelPx) < MIN_PX_GAP) continue;
 
-        // 目盛り
+        // tick
         ctx.strokeStyle = "rgba(229,231,235,.42)";
         ctx.lineWidth = 1.2;
         ctx.beginPath();
@@ -440,9 +564,9 @@
         ctx.lineTo(px, trackY + 14);
         ctx.stroke();
 
-        // ラベル
+        // label
         const label = "x=" + p.x.toFixed(decimals) + "m";
-        const y = trackY + 52; // 余白大きめ
+        const y = trackY + 52;
         const padX = 8, padY = 5;
         const textW = ctx.measureText(label).width;
 
@@ -460,7 +584,7 @@
       ctx.restore();
     }
 
-    // 物体
+    // object
     const t = st.simT;
     const x = xAt(t);
     const px = X(x);
@@ -469,28 +593,27 @@
     ctx.fillStyle = "rgba(96,165,250,.95)";
     ctx.strokeStyle = "rgba(255,255,255,.40)";
     ctx.lineWidth = 2;
-    // 少し大きめのブロック
     const size = 46;
     roundRectPath(ctx, px - size/2, trackY - size/2, size, size, 12);
     ctx.fill();
     ctx.stroke();
     ctx.restore();
 
-    // 速度ベクトル（上）
+    // velocity arrow
     const v = vAt(t);
     const dir = v >= 0 ? 1 : -1;
     const arrowLen = clamp(Math.abs(v) * 12, 0, 170);
+    const ay = trackY - 52;
 
     ctx.save();
     ctx.strokeStyle = "rgba(52,211,153,.9)";
     ctx.fillStyle = "rgba(52,211,153,.9)";
     ctx.lineWidth = 4;
-    const ay = trackY - 52;
     ctx.beginPath();
     ctx.moveTo(px, ay);
     ctx.lineTo(px + dir*arrowLen, ay);
     ctx.stroke();
-    // head
+
     ctx.beginPath();
     ctx.moveTo(px + dir*arrowLen, ay);
     ctx.lineTo(px + dir*(arrowLen - 14), ay - 10);
@@ -502,16 +625,16 @@
     ctx.fillText("v", px + dir*(arrowLen + 10), ay + 5);
     ctx.restore();
 
-    // 表示値（右下）
+    // a label
     ctx.save();
     ctx.fillStyle = "rgba(251,191,36,.90)";
     ctx.font = "13px system-ui, sans-serif";
-    ctx.fillText(`a=${fmt(st.a,2)} m/s²`, w - pad - 110, pad + 12);
+    ctx.fillText(`a=${fmt(st.a,2)} m/s²`, w - pad - 120, pad + 12);
     ctx.restore();
   }
 
   // =========================
-  //  UI同期
+  //  UI sync
   // =========================
   function syncUI(){
     $("valV0").textContent = fmt(st.v0,1);
@@ -543,7 +666,7 @@
   }
 
   // =========================
-  //  再生ループ
+  //  Playback loop
   // =========================
   function tick(){
     const now = performance.now();
@@ -564,7 +687,138 @@
   }
 
   // =========================
-  //  イベント
+  //  Tabs
+  // =========================
+  function bindTabs(){
+    const btns = document.querySelectorAll(".tabbtn");
+    btns.forEach(b => {
+      b.addEventListener("click", () => {
+        btns.forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        const key = b.getAttribute("data-tab");
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("show"));
+        $("tab-" + key).classList.add("show");
+      });
+    });
+  }
+
+  // =========================
+  //  Quiz (misconception check)
+  // =========================
+  function resetQuizUI(){
+    quiz.locked = {};
+    quiz.answered = {};
+    quiz.correct = {};
+
+    // enable all buttons
+    document.querySelectorAll('.q[data-qkey] button').forEach(b => b.disabled = false);
+    $("m5check").disabled = false;
+
+    // clear messages
+    ["m1msg","m2msg","m3msg","m4msg","m5msg"].forEach(id => {
+      $(id).textContent = "";
+      $(id).className = "msg";
+    });
+
+    $("attemptMsg").textContent = `挑戦 #${quiz.attemptNo} を開始しました（各設問1回のみ記録）。`;
+    $("attemptMsg").className = "msg warn";
+  }
+
+  function newAttempt(){
+    quiz.attemptNo += 1;
+    resetQuizUI();
+  }
+
+  function lockQuestion(qkey){
+    const q = document.querySelector(`.q[data-qkey="${qkey}"]`);
+    if(!q) return;
+    q.querySelectorAll("button").forEach(b => b.disabled = true);
+    if(qkey === "m5") $("m5check").disabled = true;
+  }
+
+  function setMsg(id, ok, text){
+    const el = $(id);
+    el.textContent = text;
+    el.className = "msg " + (ok ? "good" : "bad");
+  }
+
+  function recordOnce(qkey){
+    if(quiz.locked[qkey]) return false; // already answered in this attempt
+    quiz.locked[qkey] = true;
+    quiz.answered[qkey] = true;
+    return true;
+  }
+
+  function bindChoiceQuiz(){
+    // Answer keys
+    const correct = {
+      m1: "F",
+      m2: "B",
+      m3: "F",
+      m4: "A",
+    };
+
+    document.querySelectorAll('.q[data-qkey] button[data-choice]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const q = btn.closest(".q");
+        const qkey = q.getAttribute("data-qkey");
+        if(!recordOnce(qkey)) return;
+
+        const choice = btn.getAttribute("data-choice");
+        const ok = (choice === correct[qkey]);
+        quiz.correct[qkey] = ok;
+        lockQuestion(qkey);
+
+        if(qkey === "m1"){
+          ok
+            ? setMsg("m1msg", true, "正解。速度vが0でも、加速度aが0とは限りません（頂点でもaは一定）。")
+            : setMsg("m1msg", false, "不正解。v=0は瞬間の状態。aは速度の変化の向きで別物です。");
+        }
+        if(qkey === "m2"){
+          ok
+            ? setMsg("m2msg", true, "正解。a一定なら、同じ時間ごとにvが同じだけ変化します。")
+            : setMsg("m2msg", false, "不正解。a一定の意味は「vの変化量/時間が一定」です。");
+        }
+        if(qkey === "m3"){
+          ok
+            ? setMsg("m3msg", true, "正解。a<0は「vが減る方向」。vの符号そのものはv0次第です。")
+            : setMsg("m3msg", false, "不正解。aの符号は変化の向き。vが負になるとは限りません。");
+        }
+        if(qkey === "m4"){
+          ok
+            ? setMsg("m4msg", true, "正解。時間が進むほど移動量が増えるので点間隔が広がります。")
+            : setMsg("m4msg", false, "不正解。減速では同じΔtでも移動量が小さくなり、点間隔は詰まります。");
+        }
+      });
+    });
+
+    // numeric (m5)
+    $("m5check").addEventListener("click", () => {
+      const qkey = "m5";
+      if(!recordOnce(qkey)) return;
+
+      const input = Number.isFinite(Number($("m5in").value)) ? Number($("m5in").value) : null;
+      const correctV = st.v0 + st.a * 4.0;
+
+      lockQuestion(qkey);
+
+      if(input === null){
+        setMsg("m5msg", false, "数値を入力してください。");
+        quiz.correct[qkey] = false;
+        return;
+      }
+      const tol = 0.2;
+      const ok = Math.abs(input - correctV) <= tol;
+      quiz.correct[qkey] = ok;
+
+      ok
+        ? setMsg("m5msg", true, `正解。v = ${fmt(correctV,2)} m/s（許容誤差 ±${tol}）。`)
+        : setMsg("m5msg", false, `不正解。正解は v = ${fmt(correctV,2)} m/s。v=v0+at に代入して確認。`);
+    });
+  }
+
+  // =========================
+  //  Events
   // =========================
   function bind(){
     $("v0").addEventListener("input", e => { st.v0 = parseFloat(e.target.value); onParamChange(); });
@@ -575,8 +829,7 @@
 
     $("strobeDt").addEventListener("input", e => {
       st.strobeDt = parseFloat(e.target.value);
-      // サンプリング暴発を避けるため現在時刻に合わせる
-      st.nextStrobeT = st.simT;
+      st.nextStrobeT = st.simT; // avoid burst sampling
       syncUI();
     });
 
@@ -605,7 +858,6 @@
     $("btnStrobeToggle").addEventListener("click", () => {
       st.strobeOn = !st.strobeOn;
       if(st.strobeOn){
-        // ONにした瞬間の点を一つ入れる
         st.nextStrobeT = st.simT;
         st.strobePoints.push({ t: st.simT, x: xAt(st.simT) });
       }
@@ -626,14 +878,26 @@
       }
     });
 
+    $("btnNewAttempt").addEventListener("click", () => {
+      newAttempt();
+      // 誤概念チェック画面を開く（操作ミス防止）
+      document.querySelectorAll(".tabbtn").forEach(x => x.classList.remove("active"));
+      document.querySelector('.tabbtn[data-tab="quiz"]').classList.add("active");
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("show"));
+      $("tab-quiz").classList.add("show");
+    });
+
     window.addEventListener("resize", () => { drawSim(); });
   }
 
   // =========================
-  //  初期化
+  //  Init
   // =========================
   resetStrobe();
+  bindTabs();
   bind();
+  bindChoiceQuiz();
+  newAttempt(); // start with attempt #1
   syncUI();
   requestAnimationFrame(tick);
 })();
